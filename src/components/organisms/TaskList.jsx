@@ -235,13 +235,13 @@ return (
             actionText="Create your first task"
             icon={tasks.length === 0 ? "CheckSquare" : "Filter"}
           />
-        ) : (
+) : (
           <motion.div 
             layout
             className="grid gap-4"
           >
             <AnimatePresence mode="popLayout">
-{filteredTasks.map(task => (
+              {filteredTasks.map(task => (
                 <TaskCard
                   key={task.id}
                   task={task}
