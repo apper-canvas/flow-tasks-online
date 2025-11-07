@@ -8,6 +8,7 @@ import Button from "@/components/atoms/Button";
 import FilterBar from "@/components/organisms/FilterBar";
 import TaskCard from "@/components/organisms/TaskCard";
 import TaskForm from "@/components/organisms/TaskForm";
+import TaskListComplete from "@/components/organisms/TaskListComplete";
 import Empty from "@/components/ui/Empty";
 import Loading from "@/components/ui/Loading";
 import ErrorView from "@/components/ui/ErrorView";
@@ -62,10 +63,10 @@ const filterAndSortTasks = () => {
 
     // Filter by search query
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+const query = searchQuery.toLowerCase();
       filtered = filtered.filter(task => 
-        task.title.toLowerCase().includes(query) ||
-        task.description.toLowerCase().includes(query)
+        (task.title || '').toLowerCase().includes(query) ||
+        (task.description || '').toLowerCase().includes(query)
       );
     }
 
@@ -84,12 +85,14 @@ filtered.sort((a, b) => {
       switch (sortBy) {
         case "priority": {
           const priorityOrder = { high: 3, medium: 2, low: 1 };
-          return priorityOrder[b.priority] - priorityOrder[a.priority];
+          const aPriority = priorityOrder[a.priority || 'low'];
+          const bPriority = priorityOrder[b.priority || 'low'];
+          return bPriority - aPriority;
         }
         case "created":
-          return new Date(b.createdAt) - new Date(a.createdAt);
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
         case "alphabetical":
-          return a.title.localeCompare(b.title);
+          return (a.title || '').localeCompare(b.title || '');
         case "dueDate":
         default: {
           if (!a.dueDate && !b.dueDate) return 0;
@@ -112,9 +115,9 @@ const handleTaskCreated = () => {
     try {
       await taskService.update(taskId, { completed });
       
-      setTasks(prevTasks => 
+setTasks(prevTasks => 
         prevTasks.map(task => 
-          task.Id === taskId ? { ...task, completed } : task
+          task.id === taskId ? { ...task, completed } : task
         )
       );
       
@@ -142,8 +145,8 @@ const handleEditTask = (task) => {
     try {
       await taskService.delete(taskToDelete);
       
-      setTasks(prevTasks => 
-        prevTasks.filter(task => task.Id !== taskToDelete)
+setTasks(prevTasks => 
+        prevTasks.filter(task => task.id !== taskToDelete)
       );
       
       toast.success("Task deleted successfully");
@@ -164,15 +167,13 @@ return <Loading variant="skeleton" />;
   }
 
   if (error) {
-    return (
+return (
       <ErrorView
         error={error}
         onRetry={loadData}
         title="Unable to load tasks"
         description="There was a problem loading your tasks. Please check your connection and try again."
       />
-);
-/>
     );
   }
 
@@ -188,10 +189,13 @@ return <Loading variant="skeleton" />;
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
           {/* Logout Button */}
           <button
-onClick={logout}
+            onClick={() => {
+              localStorage.removeItem('token');
+              window.location.href = '/login';
+            }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
           >
             <ApperIcon name="LogOut" size={16} />
@@ -237,9 +241,9 @@ onClick={logout}
             className="grid gap-4"
           >
             <AnimatePresence mode="popLayout">
-              {filteredTasks.map(task => (
+{filteredTasks.map(task => (
                 <TaskCard
-                  key={task.Id}
+                  key={task.id}
                   task={task}
                   categories={categories}
                   onToggleComplete={handleToggleComplete}
