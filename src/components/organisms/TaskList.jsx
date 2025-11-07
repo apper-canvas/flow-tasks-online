@@ -304,9 +304,9 @@ return (
             </div>
           </motion.div>
         </div>
-      )}
+)}
     </div>
-);
+  );
 };
 
 export default TaskList;
