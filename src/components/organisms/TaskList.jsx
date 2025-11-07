@@ -1,168 +1,166 @@
-import React, { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { toast } from "react-toastify"
-import TaskCard from "@/components/organisms/TaskCard"
-import FilterBar from "@/components/organisms/FilterBar"
-import TaskForm from "@/components/organisms/TaskForm"
-import Loading from "@/components/ui/Loading"
-import ErrorView from "@/components/ui/ErrorView"
-import Empty from "@/components/ui/Empty"
-import Button from "@/components/atoms/Button"
-import ApperIcon from "@/components/ApperIcon"
-import { taskService } from "@/services/api/taskService"
-import { categoryService } from "@/services/api/categoryService"
-
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { taskService } from "@/services/api/taskService";
+import { categoryService } from "@/services/api/categoryService";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import FilterBar from "@/components/organisms/FilterBar";
+import TaskCard from "@/components/organisms/TaskCard";
+import TaskForm from "@/components/organisms/TaskForm";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import ErrorView from "@/components/ui/ErrorView";
 const TaskList = () => {
-  const [tasks, setTasks] = useState([])
-  const [categories, setCategories] = useState([])
-  const [filteredTasks, setFilteredTasks] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [tasks, setTasks] = useState([]);
+const [categories, setCategories] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   
   // Filter states
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState("all")
-  const [sortBy, setSortBy] = useState("dueDate")
-  const [showCompleted, setShowCompleted] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("dueDate");
+  const [showCompleted, setShowCompleted] = useState(true);
   
   // Form states
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editTask, setEditTask] = useState(null)
-  const [taskToDelete, setTaskToDelete] = useState(null)
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editTask, setEditTask] = useState(null);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+
+useEffect(() => {
+    loadData();
+  }, []);
 
   useEffect(() => {
-    loadData()
-  }, [])
-
-  useEffect(() => {
-    filterAndSortTasks()
-  }, [tasks, searchQuery, activeCategory, sortBy, showCompleted])
+    filterAndSortTasks();
+  }, [tasks, searchQuery, activeCategory, sortBy, showCompleted]);
 
   const loadData = async () => {
     try {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
       
       const [tasksData, categoriesData] = await Promise.all([
         taskService.getAll(),
         categoryService.getAll()
-      ])
+]);
       
-      setTasks(tasksData)
-      setCategories(categoriesData)
+      setTasks(tasksData);
+      setCategories(categoriesData);
     } catch (err) {
-      console.error("Error loading data:", err)
-      setError("Failed to load tasks. Please try again.")
+      console.error("Error loading data:", err);
+      setError("Failed to load tasks. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const filterAndSortTasks = () => {
-    let filtered = [...tasks]
+const filterAndSortTasks = () => {
+    let filtered = [...tasks];
 
     // Filter by search query
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(task => 
         task.title.toLowerCase().includes(query) ||
         task.description.toLowerCase().includes(query)
-      )
+      );
     }
 
-    // Filter by category
+// Filter by category
     if (activeCategory !== "all") {
-      filtered = filtered.filter(task => task.category === activeCategory)
+      filtered = filtered.filter(task => task.category === activeCategory);
     }
 
     // Filter by completion status
     if (!showCompleted) {
-      filtered = filtered.filter(task => !task.completed)
+      filtered = filtered.filter(task => !task.completed);
     }
 
     // Sort tasks
-    filtered.sort((a, b) => {
+filtered.sort((a, b) => {
       switch (sortBy) {
         case "priority": {
-          const priorityOrder = { high: 3, medium: 2, low: 1 }
-          return priorityOrder[b.priority] - priorityOrder[a.priority]
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
         }
         case "created":
-          return new Date(b.createdAt) - new Date(a.createdAt)
+          return new Date(b.createdAt) - new Date(a.createdAt);
         case "alphabetical":
-          return a.title.localeCompare(b.title)
+          return a.title.localeCompare(b.title);
         case "dueDate":
         default: {
-          if (!a.dueDate && !b.dueDate) return 0
-          if (!a.dueDate) return 1
-          if (!b.dueDate) return -1
-          return new Date(a.dueDate) - new Date(b.dueDate)
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return new Date(a.dueDate) - new Date(b.dueDate);
         }
       }
-    })
+    });
 
-    setFilteredTasks(filtered)
-  }
+    setFilteredTasks(filtered);
+  };
 
-  const handleTaskCreated = () => {
-    loadData()
-    setEditTask(null)
-  }
+const handleTaskCreated = () => {
+    loadData();
+    setEditTask(null);
+  };
 
   const handleToggleComplete = async (taskId, completed) => {
     try {
-      await taskService.update(taskId, { completed })
+      await taskService.update(taskId, { completed });
       
       setTasks(prevTasks => 
         prevTasks.map(task => 
           task.Id === taskId ? { ...task, completed } : task
         )
-      )
+      );
       
       if (completed) {
-        toast.success("Task completed! 🎉")
+        toast.success("Task completed! 🎉");
       }
     } catch (error) {
-      console.error("Error updating task:", error)
-      toast.error("Failed to update task")
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
     }
-  }
+  };
 
-  const handleEditTask = (task) => {
-    setEditTask(task)
-    setIsFormOpen(true)
-  }
+const handleEditTask = (task) => {
+    setEditTask(task);
+    setIsFormOpen(true);
+  };
 
   const handleDeleteTask = (taskId) => {
-    setTaskToDelete(taskId)
-  }
+    setTaskToDelete(taskId);
+  };
 
   const confirmDelete = async () => {
-    if (!taskToDelete) return
+    if (!taskToDelete) return;
 
     try {
-      await taskService.delete(taskToDelete)
+      await taskService.delete(taskToDelete);
       
       setTasks(prevTasks => 
         prevTasks.filter(task => task.Id !== taskToDelete)
-      )
+      );
       
-      toast.success("Task deleted successfully")
+      toast.success("Task deleted successfully");
     } catch (error) {
-      console.error("Error deleting task:", error)
-      toast.error("Failed to delete task")
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
     } finally {
-      setTaskToDelete(null)
+      setTaskToDelete(null);
     }
-  }
+  };
 
-  const handleCloseForm = () => {
-    setIsFormOpen(false)
-    setEditTask(null)
-  }
-
+const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditTask(null);
+  };
   if (loading) {
-    return <Loading variant="skeleton" />
+return <Loading variant="skeleton" />;
   }
 
   if (error) {
@@ -173,7 +171,8 @@ const TaskList = () => {
         title="Unable to load tasks"
         description="There was a problem loading your tasks. Please check your connection and try again."
       />
-    )
+);
+  }
   }
 
   return (
@@ -182,11 +181,24 @@ const TaskList = () => {
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
             Flow Tasks
-          </h1>
+</h1>
           <p className="text-slate-600 mt-1">
             {tasks.length === 0 ? "No tasks yet" : `${tasks.filter(t => !t.completed).length} pending, ${tasks.filter(t => t.completed).length} completed`}
           </p>
         </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Logout Button */}
+          <button
+            onClick={() => {
+              const { logout } = require('@/layouts/Root').useAuth();
+              logout();
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+          >
+            <ApperIcon name="LogOut" size={16} />
+            Logout
+          </button>
         
         <Button
           onClick={() => setIsFormOpen(true)}
@@ -292,7 +304,7 @@ const TaskList = () => {
         </div>
       )}
     </div>
-  )
-}
+);
+};
 
-export default TaskList
+export default TaskList;
