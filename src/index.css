@@ -1,0 +1,146 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'react-toastify/dist/ReactToastify.css';
+
+/* Toast customization */
+.Toastify__toast {
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animation utilities */
+.task-completion-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.task-completion-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  transform: translateY(-50%);
+  animation: strike-through 0.25s ease-out forwards;
+}
+
+.priority-pulse {
+  animation: pulse 2s infinite;
+}
+
+.completion-confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: confetti 0.5s ease-out forwards;
+}
+
+/* Form focus states */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Button states */
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Card hover effects */
+.task-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Priority indicator animations */
+.priority-high {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.priority-medium {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.priority-low {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Category pill styles */
+.category-pill {
+  transition: all 0.15s ease-out;
+}
+
+.category-pill:hover {
+  transform: scale(1.05);
+}
+
+/* Floating action button */
+.fab {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  transition: all 0.2s ease-out;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty state illustration */
+.empty-state {
+  opacity: 0.6;
+  transition: opacity 0.3s ease-out;
+}
+
+.empty-state:hover {
+  opacity: 0.8;
+}
